@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Mobishare.App.Http;
 using AutoMapper;
 using Mobishare.Core.Data;
 using Mobishare.Core.Security;
@@ -25,10 +27,18 @@ using Mobishare.Ai.ChatBotAIService.ToolExecutor.Tools.RoutingTools;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddControllers();
+// Every API controller requires an authenticated caller by default (there was
+// previously no [Authorize] anywhere and app.UseAuthentication() was never
+// called, so the whole JSON API was reachable anonymously regardless of the
+// Razor-Page-level admin/staff/technician policies).
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AuthorizeFilter());
+});
 
 #region SignalR configuration
 builder.Services.AddSignalR();
@@ -89,11 +99,13 @@ builder.Services.AddScoped<IAuthorizationHandler, IsTechnicianAuthorizationHandl
 #endregion
 
 #region HttpClient configuration
+builder.Services.AddTransient<CookieForwardingHandler>();
 builder.Services.AddHttpClient("CityApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7027/");
     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-});
+})
+.AddHttpMessageHandler<CookieForwardingHandler>();
 #endregion
 
 #region Ollama configuration
@@ -170,6 +182,7 @@ app.UseSwaggerUI(c =>
 });
 
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

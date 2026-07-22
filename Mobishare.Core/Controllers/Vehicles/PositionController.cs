@@ -28,6 +28,10 @@ public class PositionController : ControllerBase
     [SwaggerResponse(201, "Position created successfully", typeof(Position))]
     [SwaggerResponse(400, "Invalid request data")]
     [SwaggerResponse(500, "Internal server error")]
+    // Anonymous on purpose: called by the MQTT-ingestion background service
+    // (Mobishare.Infrastructure/Services/Mqtt/MqttMessageHandler.cs), which has
+    // no HttpContext/user to authenticate as.
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     public async Task<IActionResult> CreatePosition([FromBody] CreatePosition request)
     {
         if (request == null)

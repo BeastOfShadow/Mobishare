@@ -113,6 +113,10 @@ public class VehicleController : ControllerBase
         OperationId = "GetVehicleById")]
     [SwaggerResponse(200, "Vehicle retrieved successfully", typeof(Vehicle))]
     [SwaggerResponse(404, "Vehicle not found")]
+    // Anonymous on purpose: called by the MQTT-ingestion background service
+    // (Mobishare.Infrastructure/Services/Mqtt/MqttMessageHandler.cs), which has
+    // no HttpContext/user to authenticate as. Read-only, low sensitivity.
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     public async Task<IActionResult> GetVehicleById(
         [FromRoute]
         [SwaggerParameter(Description = "The ID of the vehicle to retrieve.", Required = true)]

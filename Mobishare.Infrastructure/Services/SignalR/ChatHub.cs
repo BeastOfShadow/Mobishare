@@ -101,6 +101,12 @@ public class ChatHub : Hub
             return;
         }
 
+        // Hub methods don't flow HttpContext through IHttpContextAccessor, so
+        // stash the caller's auth cookie here for CookieForwardingHandler to pick
+        // up on every "CityApi" call made for the rest of this message (this
+        // instance's _httpClient, and the tool classes via HttpClientContext).
+        HttpClientContext.AuthCookie = Context.GetHttpContext()?.Request.Headers.Cookie.ToString();
+
         int newConversationId = await ConversationAssignmentAsync(conversationId, userId);
 
         if (newConversationId == 0)
