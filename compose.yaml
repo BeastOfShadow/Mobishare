@@ -1,0 +1,52 @@
+services:
+  mobishare:
+    build: .
+    container_name: mobishare_app
+    ports:
+      - "7027:7027"
+      - "5022:5022"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${ASPNETCORE_Kestrel__Certificates__Default__Password}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: ${ASPNETCORE_Kestrel__Certificates__Default__Path}
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      Authentication__Google__ClientId: ${Authentication__Google__ClientId}
+      Authentication__Google__ClientSecret: ${Authentication__Google__ClientSecret}
+      GoogleMaps__ApiKey: ${GoogleMaps__ApiKey}
+      Payments__PayPal__ClientId: ${Payments__PayPal__ClientId}
+      Payments__PayPal__ClientSecret: ${Payments__PayPal__ClientSecret}
+      Payments__PayPal__PayPalUrl: ${Payments__PayPal__PayPalUrl}
+      Ollama__Llms__DefaultUrlApiClient: ${Ollama_URL}
+      Ollama__Llms__Qwen3__UrlApiClient: ${Ollama_URL}
+      Ollama__Llms__DeepSeek__UrlApiClient: ${Ollama_URL}
+      Ollama__Embedding__UrlApiClient: ${Ollama_URL}
+    restart: unless-stopped
+    volumes:
+      - ./Mobishare.db:/app/Mobishare.db
+    depends_on:
+        - mosquitto
+#       - ollama
+
+#   ollama:
+#     build: ./ollama-docker
+#     container_name: ollama
+#     ports:
+#       - "11434:11434"
+#     volumes:
+#       - ollama_data:/root/.ollama
+#     restart: unless-stopped
+
+# volumes:
+#   ollama_data:
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    # volumes:
+    volumes:
+      - ./mosquitto-config:/mosquitto/config
+    restart: always
+    ports:
+    - "1883:1883" 
+  

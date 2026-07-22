@@ -401,3 +401,4 @@ Mobishare.db
 .DS_Store
 Mobishare.db-shm
 Mobishare.db-wal
+.env

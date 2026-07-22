@@ -24,7 +24,7 @@ public class MqttMessageHandler : IDisposable
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
 
-        _receiver = new MqttReceiver("broker.hivemq.com", "arduino/gps");
+        _receiver = new MqttReceiver("mosquitto", "arduino/gps");
         _receiver.TopicMessage += OnMessageReceived;
     }
 
